@@ -1,15 +1,18 @@
-FROM golang:1.19.3-alpine AS tf-build
+FROM alpine:3.17.0 AS build
 
-RUN apk add --no-cache git
+ARG BUILDPLATFORM
+ARG TARGETPLATFORM
+ENV TERRAFORM_VERSION=1.3.6
 
-RUN git clone --depth 1 --branch v1.3.6 https://github.com/hashicorp/terraform.git \
-    && cd terraform \
-    && go install
+WORKDIR /terraform
+RUN apk add --no-cache wget unzip
+RUN export TERRAFORM_ZIP=terraform_${TERRAFORM_VERSION}_${TARGETPLATFORM/\//"_"}.zip \
+    && wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/${TERRAFORM_ZIP} \
+    && unzip ${TERRAFORM_ZIP} -d /usr/local/bin
 
 FROM alpine:3.17.0
 
-COPY --from=tf-build /go/bin/terraform /usr/local/bin/
-
+COPY --from=build /usr/local/bin/terraform /usr/local/bin
 RUN apk add --no-cache aws-cli=1.25.97-r0 git
 
 ENTRYPOINT ["terraform"]
