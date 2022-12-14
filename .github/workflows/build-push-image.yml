@@ -7,7 +7,7 @@ on:
 
 env:
   DOCKER_HUB_USERNAME: waldoibarra
-  DOCKER_HUB_REPOSITORY: terraform-aws
+  DOCKER_HUB_REPOSITORY: 'terraform-aws'
 
 jobs:
   build-push-image:
